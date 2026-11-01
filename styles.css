@@ -133,6 +133,7 @@ h1, h2, h3 { font-family: var(--font-display); font-weight: 800; line-height: 1.
 .banner strong { font-weight: 600; }
 .banner.demo   { background: var(--neutral-weak); border-color: rgba(227,169,61,.4); color: #f0d79a; }
 .banner.warn   { background: var(--off-weak); border-color: rgba(255,93,97,.4); color: #ffc4c6; }
+.banner[hidden] { display: none; }
 
 /* =========================================================================
    Sections

@@ -5,8 +5,7 @@ Un score unique de **0 à 100** qui résume, chaque jour, si les investisseurs s
 
 Inspiré du *Fear & Greed Index* de CNN, mais **cross-asset, transparent et pédagogique** : toute la méthode de calcul est publique et expliquée.
 
-🔗 **Site en ligne :** <!-- Remplace ce lien par ton URL Netlify, ex : https://meteo-des-marches.netlify.app -->
-`https://VOTRE-SITE.netlify.app`
+🔗 **Site en ligne :** https://meteo-des-marches.netlify.app
 
 ---
 
