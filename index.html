@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Météo des Marchés — Baromètre Risk-On / Risk-Off</title>
+  <meta name="description" content="Baromètre cross-asset quotidien de l'appétit pour le risque sur les marchés : un score de 0 à 100 calculé à partir de 8 indicateurs, transparent et pédagogique.">
+  <meta name="author" content="Anatole">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chivo:wght@600;800;900&family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+  <link rel="stylesheet" href="styles.css">
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.3/chart.umd.min.js" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/date-fns/3.6.0/cdn.min.js" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/chartjs-adapter-date-fns/3.0.0/chartjs-adapter-date-fns.bundle.min.js" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/chartjs-plugin-annotation/3.0.1/chartjs-plugin-annotation.min.js" defer></script>
+  <script src="app.js" defer></script>
+</head>
+<body>
+  <header class="topbar">
+    <div class="wrap">
+      <div class="brand"><span class="spark"></span>Météo des Marchés</div>
+      <nav class="nav">
+        <a href="#accueil">Accueil</a>
+        <a href="#indicateurs">Indicateurs</a>
+        <a href="#historique">Historique</a>
+        <a href="#methode">Méthode</a>
+        <a href="#apropos">À propos</a>
+      </nav>
+      <div class="updated" id="updated"></div>
+    </div>
+  </header>
+
+  <main>
+    <div class="wrap">
+      <div class="banner demo" id="banner-demo" hidden></div>
+      <div class="banner warn" id="banner-warn" hidden></div>
+    </div>
+
+    <!-- ACCUEIL -->
+    <section id="accueil" class="hero">
+      <div class="wrap hero-grid">
+        <div class="gauge-card">
+          <div class="gauge" id="gauge"></div>
+        </div>
+        <div class="hero-copy">
+          <span class="eyebrow">Baromètre cross-asset · appétit pour le risque</span>
+          <h1>Le marché est-il en mode peur ou en mode risque ?</h1>
+          <div class="zone-pill" id="zone-pill"></div>
+          <p class="verdict" id="verdict">Chargement…</p>
+          <div class="stat-row">
+            <div class="stat"><div class="k">Variation 1 jour</div><div class="v" id="stat-1d">—</div></div>
+            <div class="stat"><div class="k">Variation 1 semaine</div><div class="v" id="stat-1w">—</div></div>
+            <div class="stat"><div class="k">Dernière mise à jour</div><div class="v" id="stat-maj">—</div></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <hr class="divider">
+
+    <!-- INDICATEURS -->
+    <section id="indicateurs">
+      <div class="wrap">
+        <div class="section-head">
+          <h2>Les 8 indicateurs</h2>
+          <p>Chaque indicateur compare deux forces du marché et donne un sous-score de 0 (peur) à 100 (appétit). Le score global en est la moyenne.</p>
+        </div>
+        <div class="cards" id="cards"></div>
+      </div>
+    </section>
+
+    <hr class="divider">
+
+    <!-- HISTORIQUE -->
+    <section id="historique">
+      <div class="wrap">
+        <div class="section-head">
+          <h2>Historique depuis 2019</h2>
+          <p>Le score au fil du temps. Les bandes colorées marquent les zones, les repères signalent trois épisodes de stress bien connus.</p>
+        </div>
+        <div class="panel">
+          <div class="chart-box"><canvas id="history-chart"></canvas></div>
+          <div class="legend">
+            <span><i style="background:var(--off)"></i>Risk-off (0–35)</span>
+            <span><i style="background:var(--neutral)"></i>Neutre (35–65)</span>
+            <span><i style="background:var(--on)"></i>Risk-on (65–100)</span>
+          </div>
+          <div class="events-row" id="events-row"></div>
+        </div>
+      </div>
+    </section>
+
+    <hr class="divider">
+
+    <!-- MÉTHODE -->
+    <section id="methode">
+      <div class="wrap">
+        <div class="section-head">
+          <h2>Comment le score est calculé</h2>
+          <p>Transparent par principe : voici toute la recette, et ses limites.</p>
+        </div>
+        <div class="prose-grid">
+          <div class="prose-card">
+            <h3>La méthode, en clair</h3>
+            <p>Pour chacun des 8 indicateurs, on mesure un <strong>signal d'appétit pour le risque</strong> (par exemple : les actions battent-elles les obligations sur les 20 derniers jours de bourse ?).</p>
+            <p>On le standardise ensuite en <strong>z-score</strong> sur un an glissant — c'est-à-dire : « ce signal est-il élevé ou faible par rapport à son comportement habituel de la dernière année ? »</p>
+            <div class="formula">z = (signal − moyenne 1 an) / écart-type 1 an</div>
+            <p>On borne ce z-score à ±2, on l'oriente (un VIX élevé = peur, donc on l'inverse), puis on le ramène sur une échelle de 0 à 100. Le <strong>score global</strong> est la moyenne des sous-scores disponibles.</p>
+            <ul>
+              <li><strong>0 – 35</strong> : Risk-off (prudence, fuite vers la sécurité)</li>
+              <li><strong>35 – 65</strong> : Neutre</li>
+              <li><strong>65 – 100</strong> : Risk-on (appétit pour le risque)</li>
+            </ul>
+          </div>
+          <div class="prose-card">
+            <h3>Les limites (à connaître)</h3>
+            <ul>
+              <li><strong>Ce n'est pas un conseil d'investissement.</strong> C'est un outil pédagogique qui décrit le climat de marché, pas une recommandation d'achat ou de vente.</li>
+              <li><strong>Source non officielle.</strong> Les données viennent de Yahoo Finance via la librairie <span class="mono">yfinance</span> : pratique et gratuit, mais sans garantie de qualité.</li>
+              <li><strong>La fenêtre de 20 jours est un choix arbitraire.</strong> Elle capte le momentum récent ; une autre fenêtre donnerait un score un peu différent.</li>
+              <li><strong>Un krach « piloté par les taux » peut tromper le baromètre.</strong> En 2022, obligations et yen ont chuté avec les actions au lieu de jouer leur rôle de refuge : le score reste alors seulement modérément risk-off.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <hr class="divider">
+
+    <!-- À PROPOS -->
+    <section id="apropos">
+      <div class="wrap">
+        <div class="section-head"><h2>À propos</h2></div>
+        <div class="about">
+          <p>Je m'appelle <strong>Anatole</strong>, étudiant entrepreneur passionné par les marchés financiers. J'ai construit Météo des Marchés pour transformer une idée simple — « le marché a-t-il peur ou faim de risque aujourd'hui ? » — en un indicateur transparent, reproductible et expliqué de bout en bout.</p>
+          <p>Le projet est entièrement automatisé et gratuit : un script Python récupère les données chaque soir, recalcule le score et met le site à jour tout seul, sans serveur ni coût.</p>
+          <div class="links">
+            <a class="btn primary" href="https://www.linkedin.com/in/anatole-hours-wohleber" target="_blank" rel="noopener">Mon profil LinkedIn</a>
+            <a class="btn" href="https://anatole-point-de-marche.netlify.app" target="_blank" rel="noopener">Mon site de briefings de marché</a>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="wrap">
+      <div class="disclaimer">⚠ Ceci n'est pas un conseil en investissement.</div>
+      <div class="foot-meta">
+        <span>Météo des Marchés — projet personnel d'Anatole.</span>
+        <span>Données : Yahoo Finance (via yfinance), à titre indicatif.</span>
+        <span>© <span id="year"></span></span>
+      </div>
+    </div>
+  </footer>
+
+  <script>document.getElementById("year").textContent = new Date().getFullYear();</script>
+</body>
+</html>
