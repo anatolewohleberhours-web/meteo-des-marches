@@ -1,11 +1,12 @@
 # 🌦️ Météo des Marchés
 
-**Un baromètre quotidien Risk-On / Risk-Off des marchés financiers.**
-Un score unique de **0 à 100** qui résume, chaque jour, si les investisseurs sont en mode *peur* (risk-off) ou *appétit pour le risque* (risk-on), calculé à partir de **8 indicateurs cross-asset**.
+**Un baromètre quotidien Risk-On / Risk-Off *et* un tableau de bord complet des marchés financiers.**
+Un score unique de **0 à 100** qui résume, chaque jour, si les investisseurs sont en mode *peur* (risk-off) ou *appétit pour le risque* (risk-on), calculé à partir de **8 indicateurs cross-asset** — complété par un **tableau de bord** réunissant ~60 indicateurs publics (actions, taux, macro, volatilité, matières premières, crypto) en un seul coup d'œil.
 
 Inspiré du *Fear & Greed Index* de CNN, mais **cross-asset, transparent et pédagogique** : toute la méthode de calcul est publique et expliquée.
 
-🔗 **Site en ligne :** https://meteo-des-marches.netlify.app
+🔗 **Site en ligne :** <!-- Remplace ce lien par ton URL Netlify, ex : https://meteo-des-marches.netlify.app -->
+`https://VOTRE-SITE.netlify.app`
 
 ---
 
@@ -43,27 +44,44 @@ Le **score global** est la moyenne des sous-scores disponibles.
 | 7 | Dollar | `DX-Y.NYB` | Dollar refuge qui grimpe → peur *(inversé)* |
 | 8 | Yen | `JPY=X` | Yen qui se renforce → débouclage du risque |
 
+## 📋 Le tableau de bord des marchés
+
+En plus du score, le site affiche un **tableau de bord** de ~60 indicateurs publics, rangés par catégorie et cherchables : **L'essentiel** (les 15 à regarder en premier), **Indices actions**, **Largeur & style**, **Secteurs US**, **Volatilité & sentiment**, **Taux & obligations**, **Macroéconomie**, **Devises**, **Matières premières** et **Crypto**.
+
+Chaque carreau montre la **valeur du jour**, sa **variation** (colorée selon qu'elle est favorable ou non au risque), une **mini-courbe** et une **phrase d'explication** (pourquoi c'est important, comment le lire). Trois sources, toutes gratuites et **sans clé d'API** :
+
+| Source | Ce qu'elle fournit |
+|--------|--------------------|
+| **Yahoo Finance** (`yfinance`) | indices, volatilité, taux, matières premières, devises, crypto |
+| **FRED** (Fed de St. Louis, export CSV public) | inflation, emploi, spreads de crédit, courbe des taux, liquidité nette, M2, bilan de la Fed |
+| **CoinGecko** (API publique `/global`) | dominance du Bitcoin, capitalisation crypto totale |
+
 ## ⚙️ Architecture — zéro serveur, zéro coût, zéro clé API
 
 ```
-compute.py  ──►  data/data.json  ──►  site statique (HTML/CSS/JS)
-   ▲                                         │
-   └── GitHub Actions (chaque soir)          └── hébergé sur Netlify
+compute.py    ──►  data/data.json
+dashboard.py  ──►  data/dashboard.json
+   ▲                      │
+   │                      └──►  site statique (HTML/CSS/JS)  ──►  Netlify
+   └── GitHub Actions (chaque soir, du lundi au vendredi)
 ```
 
-- **`compute.py`** télécharge les données via [`yfinance`](https://github.com/ranaroussi/yfinance), calcule les scores et écrit `data/data.json`.
-- **GitHub Actions** exécute ce script automatiquement chaque jour de semaine et commit le JSON mis à jour.
-- Le **site statique** (sans framework, Chart.js via CDN) lit simplement ce JSON.
-- **Robuste aux pannes** : si un ticker est indisponible, le score est calculé sur les indicateurs restants et le site le signale.
+- **`compute.py`** calcule le score Risk-On / Risk-Off → `data/data.json`.
+- **`dashboard.py`** récupère les ~60 indicateurs du tableau de bord → `data/dashboard.json`.
+- **GitHub Actions** exécute les deux scripts automatiquement chaque soir et commit les JSON mis à jour. Aucun secret à configurer : les trois sources sont publiques.
+- Le **site statique** (sans framework, Chart.js via CDN) lit simplement ces JSON.
+- **Robuste aux pannes** : si un indicateur est indisponible, il est marqué comme tel et le reste s'affiche normalement.
 
 ## 📁 Structure du projet
 
 ```
 meteo-des-marches/
-├── compute.py                 # moteur de calcul (Python)
+├── compute.py                 # moteur du score Risk-On / Risk-Off (Python)
+├── dashboard.py               # moteur du tableau de bord (~60 indicateurs)
 ├── requirements.txt           # dépendances Python
 ├── data/
-│   └── data.json              # données générées (score, historique, sous-scores)
+│   ├── data.json              # score, historique, sous-scores
+│   └── dashboard.json         # indicateurs du tableau de bord
 ├── .github/workflows/
 │   └── update.yml             # automatisation quotidienne (GitHub Actions)
 ├── index.html                 # page du site
@@ -78,8 +96,10 @@ meteo-des-marches/
 
 ```bash
 pip install -r requirements.txt
-python compute.py              # télécharge les données et met à jour data/data.json
-python compute.py --selftest   # teste la logique sans réseau (scénarios de crise)
+python compute.py                  # calcule le score -> data/data.json
+python compute.py --selftest       # teste la logique sans réseau (scénarios de crise)
+python dashboard.py                # récupère le tableau de bord -> data/dashboard.json
+python dashboard.py --placeholder  # génère un jeu de démonstration (sans réseau)
 ```
 
 Pour prévisualiser le site en local, lance un petit serveur (sinon le navigateur bloque la lecture du JSON) :

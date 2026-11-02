@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>Météo des Marchés — Baromètre Risk-On / Risk-Off</title>
-  <meta name="description" content="Baromètre cross-asset quotidien de l'appétit pour le risque sur les marchés : un score de 0 à 100 calculé à partir de 8 indicateurs, transparent et pédagogique.">
+  <meta name="description" content="Tableau de bord des marchés financiers : un baromètre Risk-On / Risk-Off et tous les indicateurs publics qui comptent (actions, taux, macro, volatilité, matières premières, crypto) réunis en un coup d'œil.">
   <meta name="author" content="Anatole">
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -24,7 +24,8 @@
       <div class="brand"><span class="spark"></span>Météo des Marchés</div>
       <nav class="nav">
         <a href="#accueil">Accueil</a>
-        <a href="#indicateurs">Indicateurs</a>
+        <a href="#tableau">Tableau de bord</a>
+        <a href="#indicateurs">Le score</a>
         <a href="#historique">Historique</a>
         <a href="#methode">Méthode</a>
         <a href="#apropos">À propos</a>
@@ -61,12 +62,37 @@
 
     <hr class="divider">
 
-    <!-- INDICATEURS -->
+    <!-- TABLEAU DE BORD -->
+    <section id="tableau">
+      <div class="wrap">
+        <div class="section-head">
+          <h2>Tableau de bord des marchés</h2>
+          <p>Tous les indicateurs publics qui comptent, réunis en un coup d'œil : actions, taux, macro, volatilité, matières premières et crypto. Mis à jour automatiquement chaque soir.</p>
+        </div>
+
+        <div class="dash-note" id="dash-note" hidden></div>
+
+        <div class="dash-toolbar">
+          <div class="dash-search">
+            <svg viewBox="0 0 24 24" aria-hidden="true" width="16" height="16"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M11 4a7 7 0 1 0 0 14 7 7 0 0 0 0-14zm9 16-4.3-4.3"/></svg>
+            <input type="search" id="dash-search" placeholder="Rechercher un indicateur (VIX, dollar, pétrole…)" autocomplete="off" aria-label="Rechercher un indicateur">
+          </div>
+          <div class="dash-chips" id="dash-chips"></div>
+        </div>
+
+        <div id="dash-groups"></div>
+        <p class="dash-empty" id="dash-empty" hidden>Aucun indicateur ne correspond à ta recherche.</p>
+      </div>
+    </section>
+
+    <hr class="divider">
+
+    <!-- INDICATEURS (composants du score) -->
     <section id="indicateurs">
       <div class="wrap">
         <div class="section-head">
-          <h2>Les 8 indicateurs</h2>
-          <p>Chaque indicateur compare deux forces du marché et donne un sous-score de 0 (peur) à 100 (appétit). Le score global en est la moyenne.</p>
+          <h2>Le score en détail — les 8 indicateurs</h2>
+          <p>Le baromètre Risk-On / Risk-Off ci-dessus repose sur ces 8 indicateurs cross-asset. Chacun compare deux forces du marché et donne un sous-score de 0 (peur) à 100 (appétit) ; le score global en est la moyenne.</p>
         </div>
         <div class="cards" id="cards"></div>
       </div>
@@ -151,7 +177,7 @@
       <div class="disclaimer">⚠ Ceci n'est pas un conseil en investissement.</div>
       <div class="foot-meta">
         <span>Météo des Marchés — projet personnel d'Anatole.</span>
-        <span>Données : Yahoo Finance (via yfinance), à titre indicatif.</span>
+        <span>Données : Yahoo Finance, FRED (Fed de St. Louis) et CoinGecko, à titre indicatif.</span>
         <span>© <span id="year"></span></span>
       </div>
     </div>

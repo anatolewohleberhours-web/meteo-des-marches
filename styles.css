@@ -133,7 +133,6 @@ h1, h2, h3 { font-family: var(--font-display); font-weight: 800; line-height: 1.
 .banner strong { font-weight: 600; }
 .banner.demo   { background: var(--neutral-weak); border-color: rgba(227,169,61,.4); color: #f0d79a; }
 .banner.warn   { background: var(--off-weak); border-color: rgba(255,93,97,.4); color: #ffc4c6; }
-.banner[hidden] { display: none; }
 
 /* =========================================================================
    Sections
@@ -203,6 +202,58 @@ section { padding-block: clamp(42px, 6vw, 76px); }
 .spark { width: 100%; height: 40px; display: block; }
 .card-meaning { font-size: .86rem; color: var(--fg-muted); line-height: 1.5; margin: 0; }
 .tag { font-family: var(--font-mono); font-size: .64rem; letter-spacing: .1em; text-transform: uppercase; padding: 3px 8px; border-radius: 6px; border: 1px solid currentColor; align-self: flex-start; }
+
+/* =========================================================================
+   TABLEAU DE BORD
+   ========================================================================= */
+.dash-note { border-radius: var(--radius-sm); padding: 11px 15px; font-size: .9rem; display: flex; gap: 10px; align-items: flex-start; border: 1px solid; margin-bottom: 20px; background: var(--neutral-weak); border-color: rgba(227,169,61,.4); color: #f0d79a; }
+.dash-note strong { font-weight: 600; }
+
+.dash-toolbar { display: flex; gap: 14px; align-items: center; flex-wrap: wrap; margin-bottom: 26px; }
+.dash-search { position: relative; flex: 1 1 260px; min-width: 220px; display: flex; align-items: center; }
+.dash-search svg { position: absolute; left: 13px; color: var(--fg-dim); pointer-events: none; }
+.dash-search input {
+  width: 100%; background: var(--panel); border: 1px solid var(--border); color: var(--fg);
+  border-radius: 10px; padding: 11px 14px 11px 38px; font-family: var(--font-sans); font-size: .92rem;
+}
+.dash-search input::placeholder { color: var(--fg-dim); }
+.dash-search input:focus { outline: none; border-color: var(--accent); }
+
+.dash-chips { display: flex; gap: 7px; flex-wrap: wrap; }
+.chip {
+  font-family: var(--font-mono); font-size: .76rem; letter-spacing: .02em;
+  background: var(--panel); color: var(--fg-muted); border: 1px solid var(--border);
+  border-radius: 999px; padding: 7px 13px; cursor: pointer; transition: all .15s;
+}
+.chip:hover { color: var(--fg); border-color: #2d3b50; }
+.chip.active { background: var(--accent); color: #06101f; border-color: var(--accent); font-weight: 600; }
+
+.dash-group { margin-bottom: 34px; }
+.dash-group-head { margin-bottom: 15px; }
+.dash-group-head h3 { font-family: var(--font-display); font-size: 1.15rem; font-weight: 800; display: inline; }
+.dash-group-head p { display: inline; margin: 0 0 0 10px; color: var(--fg-dim); font-size: .85rem; }
+@media (max-width: 620px){ .dash-group-head p { display: block; margin: 4px 0 0; } }
+
+.dash-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(218px, 1fr)); gap: 13px; }
+.tile {
+  background: var(--panel); border: 1px solid var(--border); border-radius: var(--radius-sm);
+  padding: 14px 15px; display: flex; flex-direction: column; gap: 8px; min-width: 0;
+  transition: border-color .18s, transform .18s;
+}
+.tile:hover { border-color: #2d3b50; transform: translateY(-2px); }
+.tile.unavailable { opacity: .5; }
+.tile-head { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
+.tile-name { font-family: var(--font-sans); font-weight: 600; font-size: .9rem; line-height: 1.25; color: var(--fg); }
+.tile-src { font-family: var(--font-mono); font-size: .58rem; letter-spacing: .04em; text-transform: uppercase; color: var(--fg-dim); white-space: nowrap; flex-shrink: 0; }
+.tile-row { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
+.tile-val { font-family: var(--font-mono); font-weight: 600; font-size: 1.45rem; line-height: 1; font-variant-numeric: tabular-nums; }
+.tile-chg { font-family: var(--font-mono); font-size: .8rem; font-weight: 600; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.tile-spark { width: 100%; height: 34px; display: block; }
+.tile-meaning {
+  font-size: .78rem; color: var(--fg-muted); line-height: 1.45; margin: 0;
+  display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;
+}
+.dash-empty { color: var(--fg-muted); font-size: .92rem; text-align: center; padding: 30px 0; }
 
 /* =========================================================================
    HISTORIQUE

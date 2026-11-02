@@ -60,6 +60,23 @@ Un bon recruteur te demandera : *« Et pendant la crise de 2022, ton score plong
 
 En revanche, **mars 2020 (Covid)** et **août 2024 (débouclage du carry trade yen)** font bien plonger le score : ce sont des épisodes de *peur* classiques où tous les refuges jouent leur rôle.
 
+## ➕ Le tableau de bord des marchés
+
+Au-delà du score, le site réunit **~60 indicateurs publics** en un coup d'œil, rangés par catégorie (L'essentiel, Indices, Largeur & style, Secteurs US, Volatilité, Taux & obligations, Macro, Devises, Matières premières, Crypto).
+
+**Comment en parler :**
+> « Le score répond à *une* question — peur ou appétit ? Le tableau de bord, lui, donne tout le contexte autour : les grands indices, la courbe des taux, l'inflation, la liquidité de la Fed, les spreads de crédit, le dollar, les matières premières, la crypto. Chaque indicateur est coloré selon que sa variation est favorable ou défavorable au risque, avec une phrase qui explique *pourquoi il compte*. »
+
+**Les 3 sources, toutes gratuites et sans clé d'API** (une vraie décision d'ingénierie à assumer) :
+- **Yahoo Finance** (`yfinance`) — tout ce qui est coté : indices, VIX, taux, matières premières, devises, crypto.
+- **FRED** (Fed de St. Louis), via l'export CSV public `fredgraph.csv` — la macro : inflation (CPI, PCE), chômage, règle de Sahm, courbe des taux, spreads High Yield / Investment Grade, M2, bilan de la Fed, **liquidité nette** (bilan Fed − compte du Trésor − reverse repo, que je recalcule moi-même).
+- **CoinGecko** (API publique `/global`) — dominance du Bitcoin et capitalisation crypto totale.
+
+**La question piège probable — « Pourquoi colorer le VIX en rouge quand il monte, mais le S&P en vert ? »**
+> « Parce que tous les indicateurs n'ont pas le même sens. Pour la plupart, une hausse est favorable au risque (vert). Mais pour le VIX, les spreads de crédit, le dollar, l'inflation ou le chômage, c'est l'inverse : une hausse est un signal *risk-off*, donc je les marque comme "inversés" et la couleur suit ce sens-là. Ça montre que je comprends ce que chaque chiffre veut dire, pas juste s'il monte ou descend. »
+
+**Indicateurs qui font pro à citer :** la **liquidité nette de la Fed** (très corrélée aux actifs risqués et au Bitcoin), le **ratio cuivre/or** (indicateur avancé des taux longs), la **courbe 10 ans − 2 ans** (signal de récession), le **spread High Yield** (alerte précoce avant les actions).
+
 ## 6. Questions probables en entretien
 
 - **« Pourquoi un z-score et pas juste la variation ? »** → Pour rendre comparables des indicateurs d'échelles différentes, et pour mesurer l'anormalité relative, pas la valeur absolue.

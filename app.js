@@ -321,3 +321,171 @@ function buildEventChips(events) {
     `<span class="event-chip">${ev.label} — plus bas <b>${ev.score}</b> le ${frDate(ev.date)}</span>`
   ).join("");
 }
+
+// =========================================================================
+//  TABLEAU DE BORD (data/dashboard.json)
+//  Chargé indépendamment du score : si l'un échoue, l'autre s'affiche.
+// =========================================================================
+const DASH = { data: null, cat: "all", q: "" };
+
+initDashboard();
+
+async function initDashboard() {
+  try {
+    const res = await fetch("data/dashboard.json", { cache: "no-store" });
+    if (!res.ok) throw new Error("HTTP " + res.status);
+    DASH.data = await res.json();
+  } catch (err) {
+    const groups = $("#dash-groups");
+    if (groups) groups.innerHTML =
+      `<p class="dash-empty">Tableau de bord indisponible : <code>data/dashboard.json</code> introuvable (${err.message}).</p>`;
+    return;
+  }
+  renderDashboard();
+}
+
+function renderDashboard() {
+  const d = DASH.data;
+
+  // Bandeau démo spécifique au tableau de bord
+  if (d.placeholder) {
+    const n = $("#dash-note");
+    n.hidden = false;
+    n.innerHTML = "<span>●</span><div><strong>Données de démonstration.</strong> " +
+      "Les vraies valeurs de marché apparaîtront après le premier calcul automatique (GitHub Actions). " +
+      "La structure et les couleurs ci-dessous illustrent le fonctionnement.</div>";
+  } else if (d.missing && d.missing.length) {
+    const n = $("#dash-note");
+    n.hidden = false;
+    n.innerHTML = "<span>⚠</span><div><strong>Calcul partiel :</strong> " + d.missing.length +
+      " indicateur(s) indisponible(s) ce jour. Le reste est à jour.</div>";
+  }
+
+  // Puces de catégories
+  const chips = $("#dash-chips");
+  const cats = [{ key: "all", name: "Tout" }].concat(d.categories);
+  chips.innerHTML = cats.map((c) =>
+    `<button class="chip${c.key === DASH.cat ? " active" : ""}" data-cat="${c.key}">${c.name}</button>`
+  ).join("");
+  chips.querySelectorAll(".chip").forEach((b) =>
+    b.addEventListener("click", () => { DASH.cat = b.dataset.cat; drawGroups(); }));
+
+  // Recherche
+  const search = $("#dash-search");
+  search.addEventListener("input", () => { DASH.q = search.value.trim().toLowerCase(); drawGroups(); });
+
+  drawGroups();
+}
+
+function matchQuery(ind) {
+  if (!DASH.q) return true;
+  return (ind.name + " " + ind.id + " " + (ind.meaning || "")).toLowerCase().includes(DASH.q);
+}
+
+function drawGroups() {
+  const d = DASH.data;
+  const wrap = $("#dash-groups");
+  const empty = $("#dash-empty");
+
+  // Puce active
+  $("#dash-chips").querySelectorAll(".chip").forEach((b) =>
+    b.classList.toggle("active", b.dataset.cat === DASH.cat));
+
+  // Quelles catégories afficher
+  let groups;
+  if (DASH.cat === "all") {
+    // « L'essentiel » (featured) puis chaque catégorie réelle
+    const featured = d.indicators.filter((i) => i.featured && matchQuery(i));
+    groups = [];
+    if (featured.length) groups.push({ key: "essentiel", meta: d.categories[0], items: featured });
+    d.categories.filter((c) => c.key !== "essentiel").forEach((c) => {
+      const items = d.indicators.filter((i) => i.cat === c.key && matchQuery(i));
+      if (items.length) groups.push({ key: c.key, meta: c, items });
+    });
+  } else if (DASH.cat === "essentiel") {
+    const items = d.indicators.filter((i) => i.featured && matchQuery(i));
+    groups = items.length ? [{ key: "essentiel", meta: d.categories[0], items }] : [];
+  } else {
+    const c = d.categories.find((x) => x.key === DASH.cat);
+    const items = d.indicators.filter((i) => i.cat === DASH.cat && matchQuery(i));
+    groups = items.length ? [{ key: c.key, meta: c, items }] : [];
+  }
+
+  empty.hidden = groups.length > 0;
+  wrap.innerHTML = groups.map((g) =>
+    `<div class="dash-group">
+       <div class="dash-group-head">
+         <h3>${g.meta.name}</h3>
+         <p>${g.meta.desc || ""}</p>
+       </div>
+       <div class="dash-grid">${g.items.map(tile).join("")}</div>
+     </div>`
+  ).join("");
+}
+
+// ----- un carreau d'indicateur -----
+function tile(ind) {
+  const col = changeColor(ind);
+  const val = ind.available ? fmtValue(ind.value, ind.fmt) : "—";
+  const chg = ind.available ? fmtChange(ind) : "";
+  const arrow = ind.change == null ? "" : ind.change > 0 ? "▲" : ind.change < 0 ? "▼" : "—";
+  return `<article class="tile${ind.available ? "" : " unavailable"}">
+      <div class="tile-head">
+        <span class="tile-name">${ind.name}</span>
+        <span class="tile-src">${ind.source}</span>
+      </div>
+      <div class="tile-row">
+        <span class="tile-val">${val}</span>
+        ${ind.available && ind.change != null
+          ? `<span class="tile-chg" style="color:${col}">${arrow} ${chg}</span>` : ""}
+      </div>
+      ${tileSpark(ind.spark, col)}
+      <p class="tile-meaning">${ind.meaning}</p>
+    </article>`;
+}
+
+// couleur selon la direction ET le sens de l'indicateur (invert = hausse défavorable)
+function changeColor(ind) {
+  if (!ind.available || ind.change == null || Math.abs(ind.change) < 1e-9) return C.muted;
+  const good = ind.invert ? ind.change < 0 : ind.change > 0;
+  return good ? C.on : C.off;
+}
+
+function fmtValue(v, fmt) {
+  if (v == null) return "—";
+  const fr = (x, dmin, dmax) => x.toLocaleString("fr-FR", { minimumFractionDigits: dmin, maximumFractionDigits: dmax });
+  switch (fmt) {
+    case "pts":   return fr(v, 0, 0);
+    case "pct":   return fr(v, 2, 2) + " %";
+    case "tn":    return fr(v, 2, 2) + " T$";
+    case "price": return "$" + fr(v, v >= 1000 ? 0 : 2, v >= 1000 ? 0 : 2);
+    case "num":
+      if (Math.abs(v) < 0.01) return fr(v, 4, 5);
+      if (Math.abs(v) < 1)    return fr(v, 3, 3);
+      return fr(v, 2, 2);
+    default:      return fr(v, 2, 2);
+  }
+}
+
+function fmtChange(ind) {
+  const v = ind.change;
+  if (v == null) return "";
+  const s = (v > 0 ? "+" : "") + v.toLocaleString("fr-FR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  return ind.change_kind === "pt" ? s + " pt" : s + " %";
+}
+
+function tileSpark(series, color) {
+  if (!series || series.length < 2) return `<div class="tile-spark"></div>`;
+  const W = 150, H = 34, pad = 2;
+  const n = series.length;
+  const lo = Math.min(...series), hi = Math.max(...series);
+  const span = hi - lo || 1;
+  const xs = (i) => (i / (n - 1)) * W;
+  const ys = (v) => H - pad - ((v - lo) / span) * (H - 2 * pad);
+  const pts = series.map((v, i) => `${xs(i).toFixed(1)},${ys(v).toFixed(1)}`).join(" ");
+  const area = `${xs(0).toFixed(1)},${H} ${pts} ${xs(n - 1).toFixed(1)},${H}`;
+  return `<svg class="tile-spark" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" aria-hidden="true">
+            <polygon points="${area}" fill="${color}" opacity="0.09"/>
+            <polyline points="${pts}" fill="none" stroke="${color}" stroke-width="1.5" stroke-linejoin="round"/>
+          </svg>`;
+}
