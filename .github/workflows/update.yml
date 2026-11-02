@@ -30,11 +30,14 @@ jobs:
       - name: Calculer le score et mettre à jour data/data.json
         run: python compute.py
 
-      - name: Publier le JSON mis à jour (s'il a changé)
+      - name: Calculer le tableau de bord et mettre à jour data/dashboard.json
+        run: python dashboard.py
+
+      - name: Publier les JSON mis à jour (s'ils ont changé)
         run: |
-          git config user.name  "github-actions[bot]"
+          git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add data/data.json
+          git add data/data.json data/dashboard.json
           if git diff --staged --quiet; then
             echo "Aucun changement de données aujourd'hui."
           else
